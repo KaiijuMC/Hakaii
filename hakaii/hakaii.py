@@ -2,21 +2,20 @@ import io
 import os
 import sys
 import random
-import linear
-import struct
 import threading
 
+from hakaii.linear import *
 from nbt import nbt
 
 
 def load_file(filename):
     #print(f"Opening file {filename}...")
     if ".mca" in filename:
-        region = linear.open_region_anvil(filename)
-        write = linear.write_region_anvil
+        region = open_region_anvil(filename)
+        write = write_region_anvil
     else:
-        region = linear.open_region_linear(filename)
-        write = linear.write_region_linear
+        region = open_region_linear(filename)
+        write = write_region_linear
     return region, write
 
 def divide_array(tab, n):
@@ -46,8 +45,11 @@ def divide_array(tab, n):
     return divided_arrays
 
 
-def clean_regions(*args):
-    for name in args:
+def clean_regions(dirname, duration, files):
+    region_dir = os.path.join(dirname, "region")
+    entities_dir = os.path.join(dirname, "entities")
+    poi_dir = os.path.join(dirname, "poi")
+    for name in files:
         count = 0
         nulled = 0
         write = None
@@ -94,30 +96,4 @@ def clean_regions(*args):
             write(filename, pregion)
 
         print(f"[REGION {rregion.region_x:5} {rregion.region_z:5}] Deleted {count:4} chunks, {nulled:4} ungenerated chunks, keeping {1024 - count - nulled:4} chunks")
-
-
-if __name__ == "__main__":
-    dirname = sys.argv[1]
-    duration = int(sys.argv[2])
-    threads = int(sys.argv[3])
-
-    region_dir = os.path.join(dirname, "region")
-    entities_dir = os.path.join(dirname, "entities")
-    poi_dir = os.path.join(dirname, "poi")
-
-    regions = os.listdir(region_dir)
-
-    subtasks = divide_array(regions, threads)
-
-    print(f"We will delete chunks inhabited less than {duration/20} secs / {duration} ticks.")
-
-    threads = []
-    for task in subtasks:
-        print(task)
-        thread = threading.Thread(target=clean_regions, args=(task))
-        thread.start()
-        threads.append(thread)
-
-    for thread in threads:
-        thread.join()
 
