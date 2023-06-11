@@ -1,5 +1,6 @@
 # Hakaii
-Fast chunk selector based on `InhabitedTime` NBT.
+Fast chunk selector based on `InhabitedTime` NBT.  
+Powered by [Linearify](https://github.com/kugge/Linearify).
 
 ## Usage
 ```
