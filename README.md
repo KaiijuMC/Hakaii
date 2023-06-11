@@ -7,7 +7,7 @@
 
 ## Usage
 ```
-Usage: hakaii.exe [OPTIONS] <FOLDER> <TICKS>
+Usage: hakaii [OPTIONS] <FOLDER> <TICKS>
 
 Arguments:
   <FOLDER>  World directory
