@@ -1,11 +1,10 @@
 mod hakaii;
 
 use std::fs;
-use std::env;
-use std::process;
 
 use clap::Parser;
 use fs_extra::dir::get_size;
+use rayon::prelude::*;
 
 use hakaii::clean_regions;
 
@@ -24,7 +23,7 @@ struct Args {
     /// Number of threads
     #[arg(value_name = "THREADS")]
     #[arg(short, long, default_value_t = 1)]
-    threads: u32,
+    threads: usize,
     /// ZSTD Compression level
     #[arg(value_name = "COMPRESSION LEVEL")]
     #[arg(short, long, default_value_t = 3)]
@@ -43,6 +42,13 @@ fn format_size(bytes: u64) -> String {
     let formatted_value = format!("{:.2}", value);
 
     format!("{} {}", formatted_value, suffixes[exponent as usize])
+}
+
+fn divide_vec<T: Clone>(vec: Vec<T>, n: usize) -> Vec<Vec<T>> {
+    let len = vec.len();
+    let chunk_size = (len as f64 / n as f64).ceil() as usize;
+
+    vec.chunks(chunk_size).map(|chunk| chunk.to_vec()).collect()
 }
 
 fn main() {
@@ -72,10 +78,12 @@ fn main() {
         }
     }
 
+    let tasks = divide_vec(file_names, threads);
     let size_before: u64 = get_size(dirname).unwrap();
-    clean_regions(dirname, duration, compression_level, file_names);
+
+    tasks.into_par_iter().for_each(|t| clean_regions(&dirname, duration, compression_level, &t));
     let size_after: u64 = get_size(dirname).unwrap();
-    
+
     println!(
         "Reduced size from {} to {}",
         format_size(size_before),

@@ -9,7 +9,7 @@ pub struct Data {
     pub inhabited_time: i64
 }
 
-pub fn clean_regions(dirname: &str, duration: i64, compression_level: i32, files: Vec<String>) {
+pub fn clean_regions(dirname: &str, duration: i64, compression_level: i32, files: &Vec<String>) {
     let region_dir = Path::new(dirname).join("region");
     let entities_dir = Path::new(dirname).join("entities");
     let poi_dir = Path::new(dirname).join("poi");
