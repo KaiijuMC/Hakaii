@@ -1,6 +1,7 @@
 mod hakaii;
 
 use std::fs;
+use std::io::{stdin, Read};
 
 use clap::Parser;
 use fs_extra::dir::get_size;
@@ -58,14 +59,21 @@ fn main() {
     let threads = args.threads;
     let compression_level = args.compression_level;
 
+    // WARNING
     println!(
         "We will delete chunks inhabited less than {} secs / {} ticks.",
         duration as f32 / 20.0,
         duration
     );
 
+    println!("Please create a backup before using this tool.");
+    println!("Press any key to continue... ");
+
+    let _ = stdin().read(&mut [0u8]).unwrap();
+
     let dirname = &args.world_dir;
 
+    // PROCESS
     let mut file_names: Vec<String> = Vec::new();
     let entries = fs::read_dir(format!("{}/region", dirname))
         .expect("Failed to read directory");
